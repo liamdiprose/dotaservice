@@ -5,9 +5,10 @@ description = ""
 authors = ["Your Name <you@example.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
-grpcio-tools = "^1.28.1"
+python = "^3.7.0"
+grpcio-tools = "1.16.1"
 poetry = "^1.0.5"
+grpcio = "1.16.1"
 
 [tool.poetry.dev-dependencies]
 ipython = "^7.13.0"
