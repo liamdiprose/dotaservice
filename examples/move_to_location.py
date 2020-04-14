@@ -11,13 +11,14 @@ from dotaservice.protos.dota_gcmessages_common_bot_script_pb2 import CMsgBotWorl
 
 
 async def main():
-    action = Actions(
+    dummy_action = Actions(
         actions=CMsgBotWorldState.Actions(
             actions=[
                 CMsgBotWorldState.Action(
                     actionType = CMsgBotWorldState.Action.Type.DOTA_UNIT_ORDER_MOVE_TO_POSITION,
                     moveToLocation = CMsgBotWorldState.Action.MoveToLocation(
-                        location=CMsgBotWorldState.Vector(x=-394, y=-486, z=2)
+                        # units=[0],
+                        location=CMsgBotWorldState.Vector(x=-394, y=-486, z=204)
                     )
                 )
         ]),
@@ -28,7 +29,7 @@ async def main():
 
     # Get the initial observation.
     observation = await env.reset(GameConfig(
-        host_mode=HostMode.HOST_MODE_DEDICATED,
+        host_mode=HostMode.HOST_MODE_GUI,
         hero_picks=[
             HeroPick(
                 team_id=Team.TEAM_RADIANT, 
@@ -84,15 +85,42 @@ async def main():
         ticks_per_observation=30
         ))
 
-    print(f"moving {action}")
 
-    await env.act(action)
+    for _ in range(15):
+        # Sample an action from the action protobuf
+        # Take an action, returning the resulting observation.
+
+        # print(observation)
+        await env.act(dummy_action)
+        observation = await env.observe(ObserveConfig(team_id=Team.TEAM_RADIANT))
+        print(".", end="")
+
+    print()
+    move_action = Actions(
+        actions=CMsgBotWorldState.Actions(
+            # dota_time=observation.world_state.dota_time,
+            actions=[
+                CMsgBotWorldState.Action(
+                    actionDelay=0,
+                    actionType = CMsgBotWorldState.Action.Type.DOTA_UNIT_ORDER_MOVE_TO_POSITION,
+                    moveToLocation = CMsgBotWorldState.Action.MoveToLocation(
+                        # units=[1],  # TODO: Should really get unit ID from worldstate
+                        location=CMsgBotWorldState.Vector(x=-394, y=-486, z=0)
+                    ),
+                    player=0
+                )
+        ]),
+        team_id=Team.TEAM_RADIANT
+    )
+    print(f"moving {move_action}")
     while True:
         # Sample an action from the action protobuf
         # Take an action, returning the resulting observation.
 
+        # print(observation)
+        await env.act(move_action)
         observation = await env.observe(ObserveConfig(team_id=Team.TEAM_RADIANT))
-        print(observation)
+
 
 if __name__ == '__main__':
     asyncio.run(main())
